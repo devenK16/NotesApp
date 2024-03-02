@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace 'com.example.notesapp'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.example.notesapp"
@@ -74,5 +74,4 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$navigation_version"
     implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
 
-    implementation 'com.github.ybq:Android-SpinKit:1.4.0'
 }
