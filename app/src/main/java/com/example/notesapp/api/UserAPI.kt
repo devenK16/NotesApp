@@ -11,5 +11,5 @@ interface UserAPI {
     suspend fun signUp( @Body userRequest : UserRequest ) : Response<UserResponse>
 
     @POST("/users/signin")
-    suspend fun sigIn( @Body userRequest : UserRequest ) : Response<UserResponse>
+    suspend fun signIn( @Body userRequest : UserRequest ) : Response<UserResponse>
 }
