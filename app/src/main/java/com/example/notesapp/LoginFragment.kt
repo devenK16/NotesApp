@@ -11,13 +11,17 @@ import androidx.navigation.fragment.findNavController
 import com.example.notesapp.databinding.FragmentLoginBinding
 import com.example.notesapp.models.UserRequest
 import com.example.notesapp.utils.NetworkResult
+import com.example.notesapp.utils.TokenManager
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
     private var _binding : FragmentLoginBinding ?= null
     private val binding get() = _binding!!
     private val authViewModel by viewModels<AuthViewModel>()
+    @Inject
+    lateinit var tokenManager : TokenManager
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -50,6 +54,7 @@ class LoginFragment : Fragment() {
         authViewModel.userResponseLiveData.observe(viewLifecycleOwner , Observer {
             when(it){
                 is NetworkResult.Success -> {
+                    tokenManager.saveToken(it.data!!.token)
                     findNavController().navigate(R.id.action_loginFragment_to_mainFragment)
                 }
                 is NetworkResult.Error -> {
