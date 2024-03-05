@@ -1,29 +1,21 @@
-package com.example.notesapp
+package com.example.notesapp.ui.note
 
-import android.health.connect.datatypes.SleepSessionRecord.Stage
 import android.os.Bundle
-import android.os.NetworkOnMainThreadException
-import android.provider.ContactsContract.CommonDataKinds.Note
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.coordinatorlayout.widget.CoordinatorLayout.DispatchChangeEvent
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.example.notesapp.api.NotesAPI
+import com.example.notesapp.R
 import com.example.notesapp.databinding.FragmentMainBinding
-import com.example.notesapp.utils.Constants.TAG
+import com.example.notesapp.models.NoteResponse
 import com.example.notesapp.utils.NetworkResult
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
@@ -36,7 +28,7 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentMainBinding.inflate(inflater , container , false )
-        adapter = NoteAdapter()
+        adapter = NoteAdapter(::onNoteClicked)
         return binding.root
     }
 
@@ -46,6 +38,9 @@ class MainFragment : Fragment() {
         noteViewModel.getNotes()
         binding.noteList.layoutManager = StaggeredGridLayoutManager( 2 , StaggeredGridLayoutManager.VERTICAL)
         binding.noteList.adapter = adapter
+        binding.addNote.setOnClickListener {
+            findNavController().navigate(R.id.action_mainFragment_to_noteFragment)
+        }
     }
 
     private fun bindObservers() {
@@ -62,6 +57,12 @@ class MainFragment : Fragment() {
                 }
             }
         })
+    }
+
+    private fun onNoteClicked(noteResponse: NoteResponse){
+        val bundle = Bundle()
+        bundle.putString("note" , Gson().toJson(noteResponse))
+        findNavController().navigate(R.id.action_mainFragment_to_noteFragment, bundle)
     }
 
     override fun onDestroyView() {

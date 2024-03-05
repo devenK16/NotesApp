@@ -1,4 +1,4 @@
-package com.example.notesapp
+package com.example.notesapp.ui.login
 
 import android.text.TextUtils
 import android.util.Patterns

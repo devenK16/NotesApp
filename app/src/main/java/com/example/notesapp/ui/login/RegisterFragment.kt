@@ -1,14 +1,15 @@
-package com.example.notesapp
+package com.example.notesapp.ui.login
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import com.example.notesapp.databinding.FragmentLoginBinding
+import com.example.notesapp.R
+import com.example.notesapp.databinding.FragmentRegisterBinding
 import com.example.notesapp.models.UserRequest
 import com.example.notesapp.utils.NetworkResult
 import com.example.notesapp.utils.TokenManager
@@ -16,46 +17,51 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LoginFragment : Fragment() {
-    private var _binding : FragmentLoginBinding ?= null
+class RegisterFragment : Fragment() {
+
+    private var _binding : FragmentRegisterBinding ?= null
     private val binding get() = _binding!!
     private val authViewModel by viewModels<AuthViewModel>()
     @Inject
-    lateinit var tokenManager : TokenManager
+    lateinit var tokenManager: TokenManager
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentLoginBinding.inflate(layoutInflater , container , false)
+        _binding = FragmentRegisterBinding.inflate(layoutInflater , container , false )
+        if( tokenManager.getToken() != null ){
+            findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnLogin.setOnClickListener {
+        binding.btnSignUp.setOnClickListener {
             val validationResult = validateUserInput()
             if( validationResult.first ){
-                authViewModel.loginUser(getUserRequest())
+                authViewModel.registerUser(getUserRequest())
             }
             else{
                 binding.txtError.text = validationResult.second
             }
+            //findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
         }
 
-        binding.btnSignUp.setOnClickListener {
-            findNavController().popBackStack()
+        binding.btnLogin.setOnClickListener{
+            findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
         }
 
-        bindObservers()
+        bindObserver()
     }
 
-    private fun bindObservers() {
+    private fun bindObserver() {
         authViewModel.userResponseLiveData.observe(viewLifecycleOwner , Observer {
             when(it){
                 is NetworkResult.Success -> {
                     tokenManager.saveToken(it.data!!.token)
-                    findNavController().navigate(R.id.action_loginFragment_to_mainFragment)
+                    findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
                 }
                 is NetworkResult.Error -> {
                     binding.txtError.text = it.message
@@ -67,16 +73,18 @@ class LoginFragment : Fragment() {
         })
     }
 
-    private fun getUserRequest() : UserRequest {
-        val emailAddress = binding.txtEmail.text.toString()
-        val password = binding.txtPassword.text.toString()
-        return UserRequest(emailAddress , password , "")
-    }
     private fun validateUserInput(): Pair<Boolean, String> {
         val userRequest = getUserRequest()
-        return authViewModel.validateCredentials(userRequest.username , userRequest.email , userRequest.password , true )
+
+        return authViewModel.validateCredentials(userRequest.username , userRequest.email , userRequest.password , false)
     }
 
+    private fun getUserRequest() : UserRequest{
+        val emailAddress = binding.txtEmail.text.toString()
+        val password = binding.txtPassword.text.toString()
+        val username = binding.txtUsername.text.toString()
+        return UserRequest(emailAddress , password , username)
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

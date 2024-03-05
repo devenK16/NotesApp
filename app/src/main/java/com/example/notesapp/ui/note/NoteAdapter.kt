@@ -1,4 +1,4 @@
-package com.example.notesapp
+package com.example.notesapp.ui.note
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.notesapp.databinding.NoteItemBinding
 import com.example.notesapp.models.NoteResponse
 
-class NoteAdapter : ListAdapter<NoteResponse, NoteAdapter.NoteViewHolder>(ComparatorDiffUtil()) {
+class NoteAdapter(private val onNoteClicked: (NoteResponse) -> Unit) : ListAdapter<NoteResponse, NoteAdapter.NoteViewHolder>(
+    ComparatorDiffUtil()
+) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
         val binding = NoteItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -29,7 +31,7 @@ class NoteAdapter : ListAdapter<NoteResponse, NoteAdapter.NoteViewHolder>(Compar
             binding.title.text = note.title
             binding.desc.text = note.description
             binding.root.setOnClickListener {
-//                onNoteClicked(note)
+                onNoteClicked(note)
             }
         }
 
